@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>S448058-InitiativeReport</title>
+
+    <script type="text/javascript" src="https://rally1.rallydev.com/apps/2.1/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",launch:function(){var t=this.getContext().getProject().ObjectID;console.log("project:",t);var e=Ext.create("Ext.panel.Panel",{layout:"hbox",align:"stretch",padding:5,itemId:"filterPanel"}),a=Ext.create("Ext.panel.Panel",{layout:"hbox",align:"stretch",padding:5,itemId:"resultPanel"});this.add(e),this.add(a),this.myMask=new Ext.LoadMask({msg:"Please wait...",target:a}),this._loadCombo().then({success:function(t){var a=t;e.add(a)},scope:this})},_loadCombo:function(){var t=Ext.create("Deft.Deferred");return Ext.create("Rally.data.WsapiDataStore",{model:"PortfolioItem/Initiative",fetch:["FormattedID","Name","ObjectID"]}).load().then({success:function(e){var a=Ext.create("Ext.data.Store",{fields:["FormattedID","Name","ObjectID"],data:e}),o=Ext.create("Ext.form.ComboBox",{fieldLabel:"Choose Initiative",width:550,store:a,queryMode:"remote",valueField:"ObjectID",tpl:Ext.create("Ext.XTemplate",'<tpl for=".">','<div class="x-boundlist-item">{FormattedID} - {Name}</div>',"</tpl>"),displayTpl:Ext.create("Ext.XTemplate",'<tpl for=".">',"{FormattedID} - {Name}","</tpl>"),listeners:{select:function(t,e){this.myMask.show(),console.log(e[0].data.ObjectID),this._loadStories(e[0].data.ObjectID)},scope:this}});t.resolve(o)},scope:this}),t.promise},_loadStories:function(t){Ext.create("Rally.data.WsapiDataStore",{model:"HierarchicalRequirement",fetch:["FormattedID","Name","ObjectID","ScheduleState"],filters:Rally.data.QueryFilter.or([{property:"PortfolioItem.Parent.ObjectID",value:t},{property:"Parent.ObjectID",value:t}])}).load().then({success:function(t){this._createPieChart(t)},scope:this})},_generateData:function(t){var e=0,a=0,o=0,s=0,r=0,i=0,d=[];return Ext.Array.each(t,function(t){switch(t.get("ScheduleState")){case"Unelaborated":e+=1;break;case"Defined":a+=1;break;case"In-Progress":o+=1;break;case"Completed":s+=1;break;case"Accepted":r+=1;break;case"Ready to Ship":i+=1}}),e>0&&d.push({state:"Unelaborated",data1:e}),a>0&&d.push({state:"Defined",data1:a}),o>0&&d.push({state:"In-Progress",data1:o}),s>0&&d.push({state:"Completed",data1:s}),r>0&&d.push({state:"Accepted",data1:r}),i>0&&d.push({state:"Ready to Ship",data1:i}),d},_createPieChart:function(t){this.down("#resultPanel").removeAll(!0);var e=Ext.create("Ext.data.JsonStore",{fields:["state","data1"]});e.loadData(this._generateData(t)),console.log("data",e);var a=Ext.create("Ext.chart.Chart",{xtype:"chart",animate:!0,store:e,shadow:!0,legend:{position:"right"},insetPadding:60,theme:"Base:gradients",series:[{type:"pie",angleField:"data1",showInLegend:!0,donut:!1,tips:{trackMouse:!0,width:140,height:28,renderer:function(t,a){var o=0;e.each(function(t){o+=t.get("data1")}),this.setTitle(Math.round(t.get("data1")/o*100)+"%\n Count: "+t.get("data1"))}},highlight:{segment:{margin:20}},label:{field:"state",display:"rotate",contrast:!0,font:"18px Arial"}}]}),o=Ext.create("Ext.panel.Panel",{width:800,height:600,title:"Stories by ScheduleState",layout:"fit",items:a});this.down("#resultPanel").add(o);var s=Ext.create("Ext.grid.Panel",{store:e,height:250,width:250,title:"Stories Count",viewConfig:{stripeRows:!0,enableTextSelection:!0},columns:[{text:"State",flex:1,sortable:!1,dataIndex:"state"},{text:"Cout",width:75,sortable:!1,dataIndex:"data1"}]});this.down("#resultPanel").add(s),this.myMask.hide()}});
+
+            Rally.launchApp('CustomApp', {
+                name:"S448058-InitiativeReport",
+                parentRepos:"",
+                version:"0.1.1"
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+</body>
+</html>
