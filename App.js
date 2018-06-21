@@ -67,6 +67,7 @@ Ext.define('CustomApp', {
 		var initiativeStore = Ext.create('Rally.data.WsapiDataStore', {
 			model: 'PortfolioItem/Initiative',
 			fetch: ['FormattedID', 'Name', 'ObjectID'],
+			limit: Infinity,
 			//autoLoad: true,
 		});
 
@@ -118,6 +119,11 @@ Ext.define('CustomApp', {
 	_loadStories: function(initiativeId) {
 		var storiesStore = Ext.create('Rally.data.WsapiDataStore', {
 			model: 'HierarchicalRequirement',
+			context: {
+				        projectScopeUp: false,
+				        projectScopeDown: true,
+				        project: null //null to search all workspace
+			},
 			fetch: ['FormattedID', 'Name', 'ObjectID', 'ScheduleState'],
 			filters: Rally.data.QueryFilter.or([{
 				property: 'PortfolioItem.Parent.ObjectID',
@@ -125,13 +131,14 @@ Ext.define('CustomApp', {
 			}, {
 				property: 'Parent.ObjectID',
 				value: initiativeId
-			}])
+			}]),
+			limit: Infinity
 			//autoLoad: true,
 		});
 
 		storiesStore.load().then({
 			success: function(records) {
-				//console.log('records:', records);
+				console.log('records:', records);
 				//generate graph
 				this._createPieChart(records);
 			},
@@ -274,7 +281,7 @@ Ext.define('CustomApp', {
 
 		var resultPanel2 = Ext.create('Ext.panel.Panel', {
 			width: 800,
-			height: 600,
+			height: 500,
 			title: 'Stories by ScheduleState',
 			layout: 'fit',
 			items: chart
@@ -298,7 +305,7 @@ Ext.define('CustomApp', {
 				sortable: false,
 				dataIndex: 'state'
 			}, {
-				text: 'Cout',
+				text: 'Count',
 				width: 75,
 				sortable: false,
 				dataIndex: 'data1'
