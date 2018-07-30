@@ -394,20 +394,20 @@ Ext.define('CustomApp', {
 			series: [{
 				type: 'pie',
 				//field: 'data1',
-				angleField: 'count',
+				angleField: 'planEstimate',
 				showInLegend: true,
 				donut: false,
 				tips: {
 					trackMouse: true,
-					width: 140,
+					width: 180,
 					height: 28,
 					renderer: function(storeItem, item) {
 						//calculate percentage.
 						var total = 0;
 						store1.each(function(rec) {
-							total += rec.get('count');
+							total += rec.get('planEstimate');
 						});
-						this.setTitle(Math.round(storeItem.get('count') / total * 100) + '%' + '\n Count: ' + storeItem.get('count'));
+						this.setTitle(Math.round(storeItem.get('planEstimate') / total * 100) + '%' + '\n Plan Estimate: ' + storeItem.get('planEstimate'));
 					}
 				},
 				highlight: {
